@@ -1,0 +1,124 @@
+<!--
+Greene et al (2008) Replication Experiment
+-->
+
+<html>
+<head>
+	<title>Greene et al (2008) Replication Experiment</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	
+	<!-- Include my library, [mmturkey][mmturkey], which manages submitting data to Mechanical Turk. This defines a global object, <code>turk</code>, and attaches five properties to it, <code>hitId</code>, <code>assignmentId</code>, <code>workerId</code>, <code>previewMode</code>, and <code>turkSubmitTo</code>. It also provides a single method, <code>submit(data)</code>, which you use to submit data to Turk. If no submission URL has been provided (because, e.g. you're testing your code outside of the Turk environment), <code>submit</code> displays what would have been submitted (without, obviously, any Turk-specific variables like <code>workerId</code> and <code>assignmentI∏d</code>).  -->
+	<!-- [mmturkey]: http://github.com/longouyang/mmturkey -->
+	<script src="http://longouyang.github.com/mmturkey/mmturkey.js"></script>
+	
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- The instructions slide. -->
+<div class="slide instructions" id="instructions-general">
+	<img src="images/stanford.png" alt="Stanford University">
+		<p id='logo-text'>Stanford PSYCH 254</p>
+	<p class="block-text">
+		In this experiment, you will read through 40 moral dilemmas. They will be broken up into 2 sections of 20 dilemmas. In one section, you will simply have to read moving text and respond to the question at the end of the dilemma.In the other section, you will have to perform an additional task. So, please read the directionfor each section carefully.
+	</p>
+	<p class="block-text">
+		At the end of each paragraph, you will be asked whether or not it is morally acceptable to perform the described action. At this point you must respond by pressing one of two buttons to indicate your answer. 
+	</p>
+	<p class="block-text">
+		After you have answered the question by pressing the appropriate key, the next dilemma will immediately begin to scroll across the screen. So, remember to start reading right away.
+	</p>
+	<p class="block-text">
+		Moral judgments can be difficult to make, and we understand that people sometimes change their minds about moral questions or feel conflicted about the answers they're given. Don't think of your answers as "written in stone." All we want from you is a thoughtful first response.
+	</p>
+	<p class="block-text">
+		While we want your answers to be thoughtful, you may find that in some cases the right answer seems immediately obvious. If that happens, it's okay to answer quickly. There are no trick questions, and in every case we have done our best to make the relevant information as clear as possible.
+	</p>
+	<p class="block-text">
+		Note, however, that no two questions are the same, although many questions are similar to each other. To answer a question properly you will have to read it carefully because it will always be different in some way from the questions you have already answered.
+	</p>
+	<p class="block-text">
+		When you are done with this screen you will see the directions for the first section. Please read them carefully and then begin the first section. Thank you.	
+	</p>
+	<!-- Button to start the experiment. <code>this.blur()</code> removes the focus from the button, if the user pressed the button by using the keyboard, rather than the mouse. -->
+	<button type="button" onclick="this.blur(); experiment.trialInstructions()">Next</button>
+	<!-- Legal blurb that we're required to show. -->
+	<p class="block-text" id="legal">Legal information: By answering the
+		following questions, you are participating in a study being performed by
+		cognitive scientists in the Stanford Department of Psychology. If you have
+		questions about this research, please contact Jessica Tai at <a
+		href="mailto://jmtai@cs.stanford.edu">jmtai [at] cs.stanford.edu</a> or Noah
+		Goodman, at ngoodman [at] stanford.edu. You must be  at least 18 years old to
+		participate. Your participation in this research is voluntary. You may
+		decline to answer any or all of the following questions. You may decline
+		further participation, at any time, without adverse consequences. Your
+		anonymity is assured; the researchers who have requested your
+		participation will not receive any personal information about you.</p>`
+</div>
+<div class="slide instructions" id="instructions-load">
+	<img src="images/stanford.png" alt="Stanford University">
+		<p id='logo-text'>Stanford PSYCH 254</p>
+	<p class="block-text">
+		In this section, the text of the moral dilemma will scroll across the screen. Please read the text OUT LOUD. The microphone will begin recording at the beginning of the task. At the end of the dilemma, you will be asked whether or not the suggested action is morally acceptable.
+	</p>
+	<p class="block-text">
+		To say YES (that is, to indicate that this action IS morally acceptable) press  <span class="key">J</span> on the keyboard. To say NO (that is, to indicate that this action IS NOT morally acceptable) press  <span class="key">K</span>. You must respond by pressing one of these two buttons.
+	</p>
+	<p class="block-text">
+		Once you have pressed a button there is no way to go back to the previous screen. If you press the wrong button or if you press a button too soon, don't worry. Just move on to the next question.
+	</p>
+	<p class="block-text">
+		In addition to answering the question at the end of the dilemma, you will be asked to do another task.
+	</p>
+	<p class="block-text">
+		While the text is scrolling by, a line immediately underneath the text will contain digits. As you read, you must simultaneously search for the digit <span class="digit">5</span>.
+	</p>
+	<p class="block-text">
+		Each time you see the digit <span class="digit">5</span> come onto the screen please hit the letter <span class="key">F</span> on the keyboard. You only need to press f once for each <span class="digit">5</span> you see.
+	</p>
+	<p class="block-text">
+		Although you are searching for the digit <span class="digit">5</span>, you must simultaneously read the moral dilemma. Please do BOTH tasks at the same time. If you make a mistake and forget to press <span class="key">F</span>  when you see five, don't worry. Just continue on and try to press the button for the next five :)
+	</p>
+	<p class="block-text">
+		Most importantly, if you are still deliberating over your answer after the text of the moral dilemma is done, CONTINUE to press <span class="key">F</span> when you see a <span class="digit">5</span>. Continue doing this until you have answered yes or no.
+	</p>
+	<button type="button" id="load-next-btn">Start</button>
+</div>
+<div class="slide instructions" id="instructions-non-load">
+	<img src="images/stanford.png" alt="Stanford University">
+		<p id='logo-text'>Stanford PSYCH 254</p>
+	<p class="block-text">
+		In this section, the text of the moral dilemma will scroll across the screen. Please read the text OUT LOUD. The microphone will begin recording at the beginning of the task. At the end of the dilemma, you will be asked whether or not the suggested action is morally acceptable
+	</p>
+	<p class="block-text">
+		To say YES (that is, to indicate that this action IS  morally acceptable) press <span class="key">J</span> on the keyboard. To say NO (that is, to indicate that this action IS NOT morally acceptable) press <span class="key">K</span>. You must respond by pressing one of these two buttons.
+	</p>
+	<p class="block-text">
+		Once you have pressed a button there is no way to go back to the previous screen. If you press the wrong button or if you press a button too soon, don't worry. Just move on to the next question.
+	</p>
+	<button type="button" id="nonload-next-btn">Start</button>
+</div>
+
+<!-- The "stage" slide - where the bulk of the experiment will be displayed. Again, note the use of <code>{{}}</code>. -->
+<div class="slide" id="trial">
+	<h4 id="dilemma-name">{{}}</h4>
+	<p id="dilemma-text">{{}}</p>
+	<marquee id="digit-marquee" class="load-only" scollamount="102" scrolldelay="100"></marquee>
+	<p id="true-five" class="load-only">{{}}</p>
+	<p id="user-five" class="load-only">{{}}</p>
+	<
+</div>
+
+
+<!-- The finish slide. -->
+<div class="slide" id="finished">
+	You're finished - thanks for participating! Submitting to Mechanical Turk...
+</div>
+
+<!-- Include the <a href="experiment.html">JavaScript file for the experiment</a>. As written, that script immediately executes commands, so we include it here at the end of the HTML file to ensure that resources referenced by the script actually exist. For instance, one of the immediately executed commands is <code>showSlide("instructions")</code>. If we loaded experiment.js, say, in the <code>head</code> section, <code>showSlide("instructions")</code> would fail because the <code>instructions</code> slide doesn't exist yet. It is possible to load the script in <code>head</code> but you have to ensure that any immediately executed commands, if they rely on potentially uninitialized HTML elements, are _delayed_ until the page is ready, using either [window.onload][onload] or jQuery's more robust [$(document).ready()][domReady]  -->
+<!-- [onload]: https://developer.mozilla.org/en/DOM/window.onload -->
+<!-- [domReady]: http://api.jquery.com/ready/ -->
+<script src="experiment.js"></script>
+
+</body>
+</html>
