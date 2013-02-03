@@ -7,8 +7,6 @@ var myDilemmas,
   digitInterval;
 
 
-console.log('outside', jsonReceived);
-
 // ## High-level overview
 // Things happen in this order:
 // 
@@ -99,17 +97,39 @@ function genTrialOrder(numTrials) {
 
 }
 
+// Check if in viewport, given by StackOverflow
+function elementInViewport(el) {
+  var offset = el.offset();
+  var top = offset.top;
+  var left = offset.left;
+  var width = offset.width;
+  var height = offset.height;
+
+  while(el.offsetParent) {
+    el = el.offsetParent;
+    top += el.offsetTop;
+    left += el.offsetLeft;
+  }
+  console.log(el, el.offsetTop, window.pageYOffset);
+  return (
+    top >= window.pageYOffset &&
+    left >= window.pageXOffset &&
+    (top + height) <= (window.pageYOffset + window.innerHeight) &&
+    (left + width) <= (window.pageXOffset + window.innerWidth)
+  );
+}
+
 // ## Configuration settings
 var myKeyBindings = {"j": "yes", "k": "no", "f": "five"},
     trialOrder = genTrialOrder(numTrials),
     myDilemmas = {},
     trueFiveCt = 0
-    userFiveCt = 0;
+    userFiveCt = 0,
+    width = window.innerWidth;
 console.log("trial order after gen", trialOrder);
     
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("instructions-general");
-
 
 // ## The main event
 // I implement the sequence as an object with properties and methods. The benefit of encapsulating everything in an object is that it's conceptually coherent (i.e. the <code>data</code> variable belongs to this particular sequence and not any other) and allows you to **compose** sequences to build more complicated experiments. For instance, if you wanted an experiment with, say, a survey, a reaction time test, and a memory test presented in a number of different orders, you could easily do so by creating three separate sequences and dynamically setting the <code>end()</code> function for each sequence so that it points to the next. **More practically, you should stick everything in an object and submit that whole object so that you don't lose data (e.g. randomization parameters, what condition the subject is in, etc). Don't worry about the fact that some of the object properties are functions -- mmturkey (the Turk submission library) will strip these out.**
@@ -123,15 +143,32 @@ var experiment = {
   dilemmas: myDilemmas,
   // An array to store the data that we're collecting.
   data: [],
-  genDigitMarquee: function(speedPx) {
+  /*genDigitMarquee: function(speedPx) {
     var randDigit = random(0, 9);
-    if (randDigit == 5){
-      experiment.trueFiveCt++;
-      $("#true-five").html(experiment.trueFiveCt);
+    if (randDigit == 5) {
+      $("#digit-marquee").html( $("#digit-marquee").html() + "<span class=\"five\">5</span>");
+      var fiveElem = $(".five");
+      console.log(fiveElem);
+      for (elem in fiveElem){
+        console.log(elem);
+        if (elementInViewport(elem)){
+          // element is now visible in the viewport
+          trueFiveCt++;
+          $(".five").removeClass(".five");
+          console.log("removed five class?");
+          $("#true-five").html(trueFiveCt);
+        } 
+        else {
+          // element has gone out of viewport
+        }
+      }
     }
-    document.getElementById("digit-marquee").textContent += randDigit;
+    else {
+      $("#digit-marquee").html( $("#digit-marquee").html() + randDigit);
+    }
     return;
-  },
+  },*/
+  
   trialInstructions: function(nextTrial) { // called with no arguments randomizes next trial, else set to nextTrial's instructions
     var blockNumber = nextTrial ? 2 : 1;
     var rand = random() % 2;
@@ -156,6 +193,19 @@ var experiment = {
       })
     }
     //return experiment.end();
+  },
+  // Add new random digit to "digit stream"
+ genDigitMarquee: function(){
+    var randDigit = random(0, 9);
+    $("ul").append("<li>" + randDigit + "</li>");
+    $("ul").animate({
+      left: "-=40px"
+    }, { duration: 300, queue: false});
+    if (randDigit == 5){
+      trueFiveCt++;
+      $("#true-five").html(trueFiveCt);
+    }
+    return;
   },
   // Show the instructions for the load block trials
   loadBlock: function(){
@@ -191,9 +241,14 @@ var experiment = {
       }
     }
     
-    // Compute the correct answer.
-    var realParity = (n % 2 == 0) ? "even" : "odd";
-    
+    // Compute the correct number of fives, reset counters (for debugging)
+    trueFiveCt = 0;
+    userFiveCt = 0;
+    $("#true-five").html(trueFiveCt);
+    $("#user-five").html("user count:" + userFiveCt);
+    $("ul").empty();
+    $("ul").css("left", width);
+    console.log("ul left: " + $("ul").css("left"));
     
 
     // Display the dilemma name
@@ -207,14 +262,18 @@ var experiment = {
 
       showSlide("trial");
 
-      if (blockName == "load"){
+      // Display digit marquee only during load bloack
+      if (blockName == "load"){       
         console.log("IN load block.. trying to show load-only");
         $(".load-only").show();
+
         // Set up digit marquee
         trueFiveCt = 0;
         userFiveCt = 0;
-        var interval = blockTrials.length >= numTrials / 2 ? 333 : 111;
+        console.log("block trials length: ", blockTrials.length, "num trials: ", numTrials);
+        var interval = (blockTrials.length + 1) >= numTrials / 2 ? Math.ceil(300) : Math.ceil(1000/3.5);
         digitInterval = window.setInterval(experiment.genDigitMarquee, interval);
+        console.log("interval: ", interval);
       }
     });
     /*
@@ -224,7 +283,6 @@ var experiment = {
     
     // Get the current time so we can compute reaction time later.
     var startTime = (new Date()).getTime();
-
     
     // Set up a function to react to keyboard input. Functions that are used to react to user input are called *event handlers*. In addition to writing these event handlers, you have to *bind* them to particular events (i.e., tell the browser that you actually want the handler to run when the user performs an action). Note that the handler always takes an <code>event</code> argument, which is an object that provides data about the user input (e.g., where they clicked, which button they pressed).
     var keyPressHandler = function(event) {
@@ -234,8 +292,8 @@ var experiment = {
       var keyCode = event.which;
       // add to user's 5 count upon each "f" key click
       if (keyCode == 70) {
-        experiment.userFiveCt++;
-        $("#user-five").html("user count:" + experiment.userFiveCt);
+        userFiveCt++;
+        $("#user-five").html("user count:" + userFiveCt);
       }
 
       if(keyCode != 74 && keyCode != 75) {
@@ -263,7 +321,7 @@ var experiment = {
               highConflict: n < 12 ? "high" : "low",
               response: experiment.keyBindings[key],
               rt: endTime - startTime,
-              accuracy: userFiveCt / trueFiveCt
+              accuracy: 1 - Math.abs(userFiveCt - trueFiveCt) / trueFiveCt
             };
         
         experiment.data.push(data);

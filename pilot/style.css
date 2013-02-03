@@ -112,9 +112,27 @@ This stuff will vary by experiment.
 	display: none;
 }
 
+.five {
+	color: red;
+}
+
 marquee {
     letter-spacing: 5px;
     font-size: 24px;
     font-family: Courier New
 }
 
+ul {
+	position: absolute;
+	width: 999999px;
+	margin: 0px;
+	padding: 0px;
+}
+
+li {
+	float: left;
+	width: 20px;
+	margin: 0px;
+	padding: 10px;
+	font-family: Courier New
+}
