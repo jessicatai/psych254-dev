@@ -1,7 +1,7 @@
 // ## Load dilemmas as JSON
 var myDilemmas, 
   jsonReceived = false,
-  debug = false,
+  debug = true,
   numTrials = debug ? 4 : 40,
   myFiveCt = 0,
   digitInterval;
@@ -102,10 +102,10 @@ function genTrialOrder(numTrials) {
 // ## Configuration settings
 var myKeyBindings = {"j": "yes", "k": "no", "f": "five"},
     trialOrder = genTrialOrder(numTrials),
-    myDilemmas = {};
+    myDilemmas = {},
+    trueFiveCt = 0
+    userFiveCt = 0;
 console.log("trial order after gen", trialOrder);
-
-console.log("mydilemmas", myDilemmas);
     
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("instructions-general");
@@ -117,11 +117,10 @@ showSlide("instructions-general");
 var experiment = {
   // Parameters for this sequence.
   trials: trialOrder,
+  originalTrials: trialOrder,
   // Experiment-specific parameters - which datkeys map to odd/even
   keyBindings: myKeyBindings,
   dilemmas: myDilemmas,
-  trueFiveCt: myFiveCt,
-  userFiveCt: myFiveCt,
   // An array to store the data that we're collecting.
   data: [],
   genDigitMarquee: function(speedPx) {
@@ -200,7 +199,7 @@ var experiment = {
     // Display the dilemma name
     console.log("n", n);
     console.log("dilemmas", experiment.dilemmas);
-    $.getJSON("sample.json", function(myDilemmas) {
+    $.getJSON("dilemmas_no_breaks.json", function(myDilemmas) {
       console.log(myDilemmas);
       jsonReceived = true;
       $("#dilemma-name").html(myDilemmas[n]["Name"]);
@@ -212,6 +211,8 @@ var experiment = {
         console.log("IN load block.. trying to show load-only");
         $(".load-only").show();
         // Set up digit marquee
+        trueFiveCt = 0;
+        userFiveCt = 0;
         var interval = blockTrials.length >= numTrials / 2 ? 333 : 111;
         digitInterval = window.setInterval(experiment.genDigitMarquee, interval);
       }
@@ -261,7 +262,8 @@ var experiment = {
               stimulus: n,
               highConflict: n < 12 ? "high" : "low",
               response: experiment.keyBindings[key],
-              rt: endTime - startTime
+              rt: endTime - startTime,
+              accuracy: userFiveCt / trueFiveCt
             };
         
         experiment.data.push(data);
