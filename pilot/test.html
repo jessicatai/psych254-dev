@@ -20,7 +20,7 @@ Greene et al (2008) Replication Experiment
 	<img src="images/stanford.png" alt="Stanford University">
 		<p id='logo-text'>Stanford PSYCH 254</p>
 	<p class="block-text">
-		In this experiment, you will read through 40 moral dilemmas. They will be broken up into 2 sections of 20 dilemmas. In one section, you will simply have to read moving text and respond to the question at the end of the dilemma.In the other section, you will have to perform an additional task. So, please read the directionfor each section carefully.
+		In this experiment, you will read through 40 moral dilemmas. They will be broken up into 2 sections of 20 dilemmas. In one section, you will simply have to read moving text and respond to the question at the end of the dilemma. In the other section, you will have to perform an additional task. So, please read the directions for each section carefully.
 	</p>
 	<p class="block-text">
 		At the end of each paragraph, you will be asked whether or not it is morally acceptable to perform the described action. At this point you must respond by pressing one of two buttons to indicate your answer. 
@@ -101,12 +101,13 @@ Greene et al (2008) Replication Experiment
 <!-- The "stage" slide - where the bulk of the experiment will be displayed. Again, note the use of <code>{{}}</code>. -->
 <div class="slide" id="trial">
 	<h4 id="dilemma-name">{{}}</h4>
-	<marquee id="dilemma-text" scrolldelay="10">{{}}</marquee>
+	<marquee id="dilemma-text" scrollamount="15">{{}}</marquee>
 	<!--<marquee id="digit-marquee" class="load-only" scollamount="102" scrolldelay="100" onMouseOver="this.stop(); window.setInterval(experiment.genDigitMarquee, 1000000)"></marquee> -->
+	
+	<p id="true-five" class="hide">{{}}</p>
+	<p id="user-five" class="hide">{{}}</p>
 	<ul id="digits">
 	</ul>
-	<p id="true-five" class="load-only">{{}}</p>
-	<p id="user-five" class="load-only">{{}}</p>
 </div>
 
 

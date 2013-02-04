@@ -56,7 +56,9 @@ function genTrialOrder(numTrials) {
     nonLoadHighCt = 0,
     totalTrials = 0;
   
+  // Default function to be able to clear interval upon j or k key press
   digitInterval = function(){};
+
   var trialsPerBlock = numTrials / 2;
   while (totalTrials < numTrials) {
     var newRand = random(0, numTrials - 1);
@@ -119,14 +121,45 @@ function elementInViewport(el) {
   );
 }
 
+function clone(obj){
+  // Handle the 3 simple types, and null or undefined
+  if (null == obj || "object" != typeof obj) return obj;
+  // Handle Date
+  if (obj instanceof Date) {
+      var copy = new Date();
+      copy.setTime(obj.getTime());
+      return copy;
+  }
+
+  // Handle Array
+  if (obj instanceof Array) {
+      var copy = [];
+      for (var i = 0, len = obj.length; i < len; i++) {
+          copy[i] = clone(obj[i]);
+      }
+      return copy;
+  }
+
+  // Handle Object
+  if (obj instanceof Object) {
+      var copy = {};
+      for (var attr in obj) {
+          if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+      }
+      return copy;
+  }
+
+  throw new Error("Unable to copy obj! Its type isn't supported.");
+}
+
 // ## Configuration settings
 var myKeyBindings = {"j": "yes", "k": "no", "f": "five"},
     trialOrder = genTrialOrder(numTrials),
-    myDilemmas = {},
-    trueFiveCt = 0
+    trueFiveCt = 0,
     userFiveCt = 0,
     width = window.innerWidth;
 console.log("trial order after gen", trialOrder);
+
     
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("instructions-general");
@@ -137,38 +170,11 @@ showSlide("instructions-general");
 var experiment = {
   // Parameters for this sequence.
   trials: trialOrder,
-  originalTrials: trialOrder,
+  originalTrials: clone(trialOrder),
   // Experiment-specific parameters - which datkeys map to odd/even
   keyBindings: myKeyBindings,
-  dilemmas: myDilemmas,
   // An array to store the data that we're collecting.
-  data: [],
-  /*genDigitMarquee: function(speedPx) {
-    var randDigit = random(0, 9);
-    if (randDigit == 5) {
-      $("#digit-marquee").html( $("#digit-marquee").html() + "<span class=\"five\">5</span>");
-      var fiveElem = $(".five");
-      console.log(fiveElem);
-      for (elem in fiveElem){
-        console.log(elem);
-        if (elementInViewport(elem)){
-          // element is now visible in the viewport
-          trueFiveCt++;
-          $(".five").removeClass(".five");
-          console.log("removed five class?");
-          $("#true-five").html(trueFiveCt);
-        } 
-        else {
-          // element has gone out of viewport
-        }
-      }
-    }
-    else {
-      $("#digit-marquee").html( $("#digit-marquee").html() + randDigit);
-    }
-    return;
-  },*/
-  
+  data: [],    
   trialInstructions: function(nextTrial) { // called with no arguments randomizes next trial, else set to nextTrial's instructions
     var blockNumber = nextTrial ? 2 : 1;
     var rand = random() % 2;
@@ -197,10 +203,10 @@ var experiment = {
   // Add new random digit to "digit stream"
  genDigitMarquee: function(){
     var randDigit = random(0, 9);
-    $("ul").append("<li>" + randDigit + "</li>");
-    $("ul").animate({
+    $("#digits").append("<li>" + randDigit + "</li>");
+    $("#digits").animate({
       left: "-=40px"
-    }, { duration: 300, queue: false});
+    }, { duration: 1000 / 3.5, queue: false});
     if (randDigit == 5){
       trueFiveCt++;
       $("#true-five").html(trueFiveCt);
@@ -247,15 +253,11 @@ var experiment = {
     $("#true-five").html(trueFiveCt);
     $("#user-five").html("user count:" + userFiveCt);
     $("ul").empty();
-    $("ul").css("left", width);
-    console.log("ul left: " + $("ul").css("left"));
-    
+    $("ul").css("left", width);    
 
     // Display the dilemma name
     console.log("n", n);
-    console.log("dilemmas", experiment.dilemmas);
     $.getJSON("dilemmas_no_breaks.json", function(myDilemmas) {
-      console.log(myDilemmas);
       jsonReceived = true;
       $("#dilemma-name").html(myDilemmas[n]["Name"]);
       $("#dilemma-text").html(myDilemmas[n]["Text"]);
@@ -263,35 +265,27 @@ var experiment = {
       showSlide("trial");
 
       // Display digit marquee only during load bloack
-      if (blockName == "load"){       
-        console.log("IN load block.. trying to show load-only");
+      if (blockName == "load") {       
         $(".load-only").show();
 
         // Set up digit marquee
         trueFiveCt = 0;
         userFiveCt = 0;
         console.log("block trials length: ", blockTrials.length, "num trials: ", numTrials);
-        var interval = (blockTrials.length + 1) >= numTrials / 2 ? Math.ceil(300) : Math.ceil(1000/3.5);
+        var interval = (blockTrials.length + 1) >= numTrials / 2 ? Math.ceil(1000 / 3.5) : Math.ceil(1000/3.5);
         digitInterval = window.setInterval(experiment.genDigitMarquee, interval);
         console.log("interval: ", interval);
       }
     });
-    /*
-    $("#dilemma-name").html(experiment.dilemmas[n]["Name"]);
-      $("#dilemma-text").html(experiment.dilemmas[n]["Text"]);
-      */
-    
+
     // Get the current time so we can compute reaction time later.
     var startTime = (new Date()).getTime();
     
     // Set up a function to react to keyboard input. Functions that are used to react to user input are called *event handlers*. In addition to writing these event handlers, you have to *bind* them to particular events (i.e., tell the browser that you actually want the handler to run when the user performs an action). Note that the handler always takes an <code>event</code> argument, which is an object that provides data about the user input (e.g., where they clicked, which button they pressed).
     var keyPressHandler = function(event) {
-      // A slight disadvantage of this code is that you have to test for numeric key values; instead of writing code that expresses "*do X if 'Q' was pressed*", you have to do the more complicated "*do X if the key with code 80 was pressed*". A library like [Keymaster][keymaster], or [zen][zen] (my library, and a work in progress) lets you write simpler code like <code>key('a', function(){ alert('you pressed a!') })</code>, but I've omitted it here. Here, we get the numeric key code from the event object
-      // [keymaster]: http://github.com/madrobby/keymaster
-      // [zen]: http://github.com/longouyang/zenjs
       var keyCode = event.which;
       // add to user's 5 count upon each "f" key click
-      if (keyCode == 70) {
+      if (keyCode == 70 && blockName == "load") {
         userFiveCt++;
         $("#user-five").html("user count:" + userFiveCt);
       }
@@ -302,8 +296,14 @@ var experiment = {
         
       } 
       else {
-        // end digit stream
+        // end  and reset digit stream
         clearInterval(digitInterval);
+        $("#digits").remove();
+        $("marquee").remove();
+        $("#trial").append("<marquee id=\"dilemma-text\" scrollamount=\"15\">{{}}</marquee>");
+        $("#trial").append("<ul id=\"digits\"></ul");
+        $("#digits").css("left", width);
+        console.log("appended new ul");
 
         // map keycode to character on keyboard
         var key = "";
@@ -313,15 +313,22 @@ var experiment = {
           default: $(document).one("keydown", keyPressHandler); break;
         }
 
+        var ratio = userFiveCt / trueFiveCt; // if ratio > 1 then user clicked more times than there were fives
+        var overcounting = Math.max(0, 1 - ((userFiveCt - trueFiveCt) / trueFiveCt)); // overcounting is also penalized
+        console.log("ratio", ratio);
+        ratio = isNaN(ratio) ? 0 : ratio;
         // If a valid key is pressed (code 74 is j, 75 is k, 70 is f),
-        // record the reaction time (current time minus start time), which key was pressed, and what that means (even or odd).
+        // record the reaction time (current time minus start time), and digit count accuracy metrics
         var endTime = (new Date()).getTime(),
             data = {
+              block: blockName,
               stimulus: n,
               highConflict: n < 12 ? "high" : "low",
               response: experiment.keyBindings[key],
               rt: endTime - startTime,
-              accuracy: 1 - Math.abs(userFiveCt - trueFiveCt) / trueFiveCt
+              accuracy: ratio <= 1 ? ratio : overcounting,
+              trueFiveTotal: trueFiveCt,
+              userFiveTotal: userFiveCt
             };
         
         experiment.data.push(data);
@@ -329,7 +336,7 @@ var experiment = {
         $("#dilemma-name").html("");
         $("#dilemma-text").html("");
         // Wait 500 milliseconds before starting the next trial.
-        blockName == "load" ? setTimeout(experiment.next("load", blockNumber), 500) : setTimeout(experiment.next("nonLoad", blockNumber), 500);
+        blockName == "load" ? setTimeout(experiment.next("load", blockNumber), 500) : setTimeout(experiment.next("non-load", blockNumber), 500);
       }
     };
     
