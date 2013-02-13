@@ -57,6 +57,7 @@ Greene et al (2008) Replication Experiment
 <div class="slide instructions" id="instructions-load">
 	<img src="images/stanford.png" alt="Stanford University">
 		<p id='logo-text'>Stanford PSYCH 254</p>
+
 	<p class="block-text">
 		In this section, the text of the moral dilemma will scroll across the screen. Please read the text OUT LOUD. The microphone will begin recording at the beginning of the task. At the end of the dilemma, you will be asked whether or not the suggested action is morally acceptable.
 	</p>
@@ -86,6 +87,7 @@ Greene et al (2008) Replication Experiment
 <div class="slide instructions" id="instructions-non-load">
 	<img src="images/stanford.png" alt="Stanford University">
 		<p id='logo-text'>Stanford PSYCH 254</p>
+
 	<p class="block-text">
 		In this section, the text of the moral dilemma will scroll across the screen. Please read the text OUT LOUD. The microphone will begin recording at the beginning of the task. At the end of the dilemma, you will be asked whether or not the suggested action is morally acceptable
 	</p>
@@ -100,12 +102,13 @@ Greene et al (2008) Replication Experiment
 
 <!-- The "stage" slide - where the bulk of the experiment will be displayed. Again, note the use of <code>{{}}</code>. -->
 <div class="slide" id="trial">
+	<!-- Recording indicator for microphone instructions -->
+	<button class="mic" type="button">Recording</button>
+
 	<h4 id="dilemma-name">{{}}</h4>
-	<marquee id="dilemma-text" scrollamount="15">{{}}</marquee>
-	<!--<marquee id="digit-marquee" class="load-only" scollamount="102" scrolldelay="100" onMouseOver="this.stop(); window.setInterval(experiment.genDigitMarquee, 1000000)"></marquee> -->
-	
 	<p id="true-five" class="hide">{{}}</p>
 	<p id="user-five" class="hide">{{}}</p>
+	<p class="marquee" id="dilemma-text">{{}}</p>
 	<ul id="digits">
 	</ul>
 </div>
@@ -119,6 +122,7 @@ Greene et al (2008) Replication Experiment
 <!-- Include the <a href="experiment.html">JavaScript file for the experiment</a>. As written, that script immediately executes commands, so we include it here at the end of the HTML file to ensure that resources referenced by the script actually exist. For instance, one of the immediately executed commands is <code>showSlide("instructions")</code>. If we loaded experiment.js, say, in the <code>head</code> section, <code>showSlide("instructions")</code> would fail because the <code>instructions</code> slide doesn't exist yet. It is possible to load the script in <code>head</code> but you have to ensure that any immediately executed commands, if they rely on potentially uninitialized HTML elements, are _delayed_ until the page is ready, using either [window.onload][onload] or jQuery's more robust [$(document).ready()][domReady]  -->
 <!-- [onload]: https://developer.mozilla.org/en/DOM/window.onload -->
 <!-- [domReady]: http://api.jquery.com/ready/ -->
+<script src="dilemmas.js"></script>
 <script src="vendor/inview.js"></script>
 <script src="experiment.js"></script>
 

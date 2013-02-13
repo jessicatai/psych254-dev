@@ -1,3 +1,13 @@
+// Check for "PREVIEW" mode (disable start button if in preview mode)
+if (turk.assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE"){
+  console.log("in preview");
+  $("button").attr("disabled", "disabled");
+  $("button").html("Click ACCEPT HIT button above to start");
+}
+else {
+  console.log("not in preview");
+}
+
 // ## Load dilemmas as JSON
 var myDilemmas, 
   jsonReceived = false,
@@ -6,6 +16,17 @@ var myDilemmas,
   myFiveCt = 0,
   digitInterval;
 
+// add onclick toggle event for microphone button
+/*$(".mic").click(function(){
+  if ($(".mic").html() == "START recording"){
+    $(".mic").html("STOP recording");
+    $(".mic").css("background-color", "#eaa4a4");
+  }
+  else{
+    $(".mic").html("START recording");
+    $(".mic").css("background-color", "#b2cc88");
+  }
+});*/
 
 // ## High-level overview
 // Things happen in this order:
@@ -61,7 +82,7 @@ function genTrialOrder(numTrials) {
 
   var trialsPerBlock = numTrials / 2;
   while (totalTrials < numTrials) {
-    var newRand = random(0, numTrials - 1);
+    var newRand = random(0, 39);
     // add to load trials
     if (random() == 0 && loadTrials.length < trialsPerBlock) {
       // continue to generate a random number until an unassigned trial number is picked
@@ -157,9 +178,9 @@ var myKeyBindings = {"j": "yes", "k": "no", "f": "five"},
     trialOrder = genTrialOrder(numTrials),
     trueFiveCt = 0,
     userFiveCt = 0,
-    width = window.innerWidth;
+    width = $(window).width();//window.innerWidth;
 console.log("trial order after gen", trialOrder);
-
+console.log("(iframe) window width", width);
     
 // Show the instructions slide -- this is what we want subjects to see first.
 showSlide("instructions-general");
@@ -198,19 +219,29 @@ var experiment = {
         experiment.next("non-load", blockNumber);
       })
     }
-    //return experiment.end();
   },
   // Add new random digit to "digit stream"
- genDigitMarquee: function(){
+ genDigitMarquee: function(interval){
     var randDigit = random(0, 9);
-    $("#digits").append("<li>" + randDigit + "</li>");
     $("#digits").animate({
       left: "-=40px"
-    }, { duration: 1000 / 3.5, queue: false});
-    if (randDigit == 5){
+    }, interval, "linear", function(){
+      // when done with animation
+      $("#digits").append("<li>" + randDigit + "</li>");
+      if (randDigit == 5){
       trueFiveCt++;
       $("#true-five").html(trueFiveCt);
-    }
+      return;
+      }
+    });
+    
+  },
+  textMarquee: function(delta, numChars){
+    var speed = 1000 * numChars / 6.5;
+    console.log("num of p chars", numChars, "speed", speed);
+    $(".marquee").animate({
+      right: "+=" + delta + "px"
+    }, speed, "linear");
     return;
   },
   // Show the instructions for the load block trials
@@ -230,6 +261,7 @@ var experiment = {
   },
   // The work horse of the sequence - what to do on every trial.
   next: function(blockName, blockNumber){
+    // TODO: put "breaks" in b/t trials
     console.log("trial type: ", blockName);
 
     var blockTrials = blockName == "load" ? experiment.trials["loadTrials"] : experiment.trials["nonLoadTrials"];
@@ -253,30 +285,41 @@ var experiment = {
     $("#true-five").html(trueFiveCt);
     $("#user-five").html("user count:" + userFiveCt);
     $("ul").empty();
-    $("ul").css("left", width);    
+    $("ul").css("left", width);
 
     // Display the dilemma name
     console.log("n", n);
-    $.getJSON("dilemmas_no_breaks.json", function(myDilemmas) {
-      jsonReceived = true;
-      $("#dilemma-name").html(myDilemmas[n]["Name"]);
-      $("#dilemma-text").html(myDilemmas[n]["Text"]);
+    //$.getJSON("dilemmas_no_breaks.json", function(myDilemmas) {
+    myDilemmas = dilemmas_json;
+    jsonReceived = true;
+    $("#dilemma-name").html(myDilemmas[n]["Name"]);
+    $("#dilemma-text").html(myDilemmas[n]["Text"]);
 
-      showSlide("trial");
 
-      // Display digit marquee only during load bloack
-      if (blockName == "load") {       
-        $(".load-only").show();
+    showSlide("trial");
 
-        // Set up digit marquee
-        trueFiveCt = 0;
-        userFiveCt = 0;
-        console.log("block trials length: ", blockTrials.length, "num trials: ", numTrials);
-        var interval = (blockTrials.length + 1) >= numTrials / 2 ? Math.ceil(1000 / 3.5) : Math.ceil(1000/3.5);
-        digitInterval = window.setInterval(experiment.genDigitMarquee, interval);
-        console.log("interval: ", interval);
-      }
-    });
+    var textWidth =  $(".marquee").outerWidth();
+    $(".marquee").css("right", "-" + textWidth + "px");
+    var numChars = $(".marquee").html().length;
+    var delta = textWidth + width; 
+
+    var startRt = (textWidth* numChars * 1000) / (6.5 * delta);
+    experiment.textMarquee(delta, numChars);
+    console.log("after textmarquee: start rt", startRt);
+
+    // Display digit marquee only during load bloack
+    if (blockName == "load") {       
+      $(".load-only").show();
+
+      // Set up digit marquee
+      trueFiveCt = 0;
+      userFiveCt = 0;
+      console.log("block trials length: ", blockTrials.length, "num trials: ", numTrials);
+      var interval = (blockTrials.length + 1) >= numTrials / 2 ? Math.ceil(1000 / 3.5) : Math.ceil(1000/3.5);
+      digitInterval = window.setInterval(function(){ experiment.genDigitMarquee(interval)}, interval);
+      console.log("interval: ", interval);
+    }
+    //});
 
     // Get the current time so we can compute reaction time later.
     var startTime = (new Date()).getTime();
@@ -299,8 +342,8 @@ var experiment = {
         // end  and reset digit stream
         clearInterval(digitInterval);
         $("#digits").remove();
-        $("marquee").remove();
-        $("#trial").append("<marquee id=\"dilemma-text\" scrollamount=\"15\">{{}}</marquee>");
+        $(".marquee").remove();
+        $("#trial").append("<p class=\"marquee\" id=\"dilemma-text\">{{}}</p>");
         $("#trial").append("<ul id=\"digits\"></ul");
         $("#digits").css("left", width);
         console.log("appended new ul");
@@ -313,20 +356,35 @@ var experiment = {
           default: $(document).one("keydown", keyPressHandler); break;
         }
 
-        var ratio = userFiveCt / trueFiveCt; // if ratio > 1 then user clicked more times than there were fives
-        var overcounting = Math.max(0, 1 - ((userFiveCt - trueFiveCt) / trueFiveCt)); // overcounting is also penalized
+        //var ratio = userFiveCt / trueFiveCt; // if ratio > 1 then user clicked more times than there were fives
+        //var overcounting = Math.max(0, 1 - ((userFiveCt - trueFiveCt) / trueFiveCt)); // overcounting is also penalized
+        var ratio = Math.max(0, 1 - (Math.abs(userFiveCt - trueFiveCt) / trueFiveCt));
         console.log("ratio", ratio);
         ratio = isNaN(ratio) ? 0 : ratio;
+
+        // Determine type of dilemma based on index number
+        var category = "";
+        if (n < 12){
+          category = "high-personal";
+        }
+        else if (n < 21){
+          category = "low-personal";
+        }
+        else {
+          category = "impersonal";
+        }
         // If a valid key is pressed (code 74 is j, 75 is k, 70 is f),
         // record the reaction time (current time minus start time), and digit count accuracy metrics
         var endTime = (new Date()).getTime(),
             data = {
               block: blockName,
               stimulus: n,
-              highConflict: n < 12 ? "high" : "low",
+              dilemmaType: category,
               response: experiment.keyBindings[key],
-              rt: endTime - startTime,
-              accuracy: ratio <= 1 ? ratio : overcounting,
+              rawRT: endTime - startTime,
+              relativeRT: endTime - startTime - Math.floor(startRt),
+              accuracy: ratio,
+              rawAccuracy: userFiveCt / trueFiveCt,
               trueFiveTotal: trueFiveCt,
               userFiveTotal: userFiveCt
             };

@@ -63,6 +63,12 @@ This stuff will vary by experiment.
   text-align: center;
 }
 
+.mic{
+	background-color: #eaa4a4;
+	position: fixed;
+	top: 0;
+}
+
 .key, .digit {
   background-color: #e3e3e3;
   padding: 2px;
@@ -110,6 +116,7 @@ This stuff will vary by experiment.
 	font-size: 36px;
 	/*font-family: Courier New;*/
 	line-height: 36px;
+	overflow: hidden;
 }
 
 .load-only {
@@ -118,6 +125,16 @@ This stuff will vary by experiment.
 
 .five {
 	color: red;
+}
+
+.marquee {
+    letter-spacing: 5px;
+    font-size: 24px;
+    font-family: Courier New;
+    margin-bottom: 50px;
+    overflow: hidden;
+    white-space: nowrap;
+    position: absolute;
 }
 
 marquee {
@@ -132,6 +149,8 @@ marquee {
 	width: 999999px;
 	margin: 0px;
 	padding: 0px;
+	overflow: none;
+	top: 200px;
 }
 
 #digits li{
