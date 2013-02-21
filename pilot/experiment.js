@@ -278,7 +278,11 @@ var experiment = {
         return experiment.end();
       }
     }
-    
+    var progress = numTrials - experiment.trials["loadTrials"].length - experiment.trials["nonLoadTrials"].length - 1;
+    var barWidth = $("#progressbar").css("width").substring(0, $("#progressbar").css("width").length - 2);
+    console.log("set inner width to : ", progress / numTrials * barWidth);
+    $("#progress-text").html(progress + " out of " + numTrials + " trials completed");
+    $("#progress-inner").css("width", progress / numTrials * barWidth);
     // Compute the correct number of fives, reset counters (for debugging)
     trueFiveCt = 0;
     userFiveCt = 0;

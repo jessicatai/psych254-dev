@@ -114,7 +114,7 @@ This stuff will vary by experiment.
 
 #trial {
 	font-size: 36px;
-	/*font-family: Courier New;*/
+	font-family: Courier New;
 	line-height: 36px;
 	overflow: hidden;
 }
@@ -160,3 +160,32 @@ marquee {
 	padding: 10px;
 	font-family: Courier New
 }
+
+/* progress bar */
+#progress {
+  position: fixed;
+  top: 0;
+  right: 0;
+}
+
+#progressbar {
+  background-color: white;
+  border-radius: 13px; /* (height of inner div) / 2 + padding */
+  padding: 3px;
+  width: 200px;
+  border: solid black 1px;
+}
+
+#progressbar div {
+   background-color: #21a2ad;
+   width: 50; /* Adjust with JavaScript */
+   height: 20px;
+   border-radius: 10px;
+}
+
+#progress-text {
+	font-weight: lighter;
+	font-size: 12px;
+	font-family: Courier New;
+}
+
