@@ -131,7 +131,7 @@ This stuff will vary by experiment.
     letter-spacing: 5px;
     font-size: 24px;
     font-family: Courier New;
-    margin-bottom: 50px;
+    margin: 50px 0px;
     overflow: hidden;
     white-space: nowrap;
     position: absolute;

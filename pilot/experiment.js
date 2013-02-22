@@ -13,6 +13,7 @@ var myDilemmas,
   jsonReceived = false,
   debug = true,
   numTrials = debug ? 4 : 40,
+  breakInterval = debug ? 1: 10,
   myFiveCt = 0,
   digitInterval;
 
@@ -259,12 +260,30 @@ var experiment = {
     // Wait 1.5 seconds and then submit the whole experiment object to Mechanical Turk (mmturkey filters out the functions so we know we're just submitting properties [i.e. data])
     setTimeout(function() { turk.submit(experiment) }, 1500);
   },
-  // The work horse of the sequence - what to do on every trial.
-  next: function(blockName, blockNumber){
-    // TODO: put "breaks" in b/t trials
-    console.log("trial type: ", blockName);
-
+  break: function(blockName, blockNumber) {
+    console.log("in break function");
+    showSlide("break");
     var blockTrials = blockName == "load" ? experiment.trials["loadTrials"] : experiment.trials["nonLoadTrials"];
+    var progress = numTrials - experiment.trials["loadTrials"].length - experiment.trials["nonLoadTrials"].length;
+    $("#break-progress").html("You have completed " + progress + " out of " + numTrials + " trials.");
+    $("#continue").click(function() {
+        this.blur();
+        experiment.next(blockName, blockNumber, true);
+        //return;
+      });
+  },
+  // The work horse of the sequence - what to do on every trial.
+  next: function(blockName, blockNumber, hasBreak){
+    var blockTrials = blockName == "load" ? experiment.trials["loadTrials"] : experiment.trials["nonLoadTrials"];
+
+    console.log("trial type: ", blockName, "block trials length", blockTrials.length);
+    console.log('breakInterval ', breakInterval, blockTrials.length % breakInterval == 0)
+    if (!hasBreak && blockTrials.length < numTrials / 2 && blockTrials.length > 0 
+      && (blockTrials.length - 1) % breakInterval == 0){
+      // time for an optional break
+      return experiment.break(blockName, blockNumber);
+    }
+
     // Get the current trial - <code>shift()</code> removes the first element of the array and returns it.
     var n = blockTrials.shift();
     // If the current trial is undefined, it means the trials array was empty, which means that we're done, so call the end function.
@@ -278,6 +297,8 @@ var experiment = {
         return experiment.end();
       }
     }
+    
+
     var progress = numTrials - experiment.trials["loadTrials"].length - experiment.trials["nonLoadTrials"].length - 1;
     var barWidth = $("#progressbar").css("width").substring(0, $("#progressbar").css("width").length - 2);
     console.log("set inner width to : ", progress / numTrials * barWidth);

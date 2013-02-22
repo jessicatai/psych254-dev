@@ -113,14 +113,19 @@ Greene et al (2008) Replication Experiment
 	    <span id="progress-text">{{}}</span>
 	</div>
 
-	<h4 id="dilemma-name">{{}}</h4>
+	<h4 id="dilemma-name" class="hide">{{}}</h4>
 	<p id="true-five" class="hide">{{}}</p>
 	<p id="user-five" class="hide">{{}}</p>
 	<p class="marquee" id="dilemma-text">{{}}</p>
 	<ul id="digits">
 	</ul>
 </div>
-
+<div class="slide" id="break">
+	<p>(Optional) Break Time.</p>
+	<p id="break-progress">You have completed {{}} out of {{}} trials.</p>
+	<p>When you are ready, please click the "Continue HIT" button to resume the HIT.</p>
+	<button type="button" id="continue">Continue HIT</button>
+</div>
 
 <!-- The finish slide. -->
 <div class="slide" id="finished">
