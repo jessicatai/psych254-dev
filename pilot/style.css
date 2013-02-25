@@ -146,11 +146,11 @@ marquee {
 
 #digits {
 	position: absolute;
-	width: 999999px;
 	margin: 0px;
 	padding: 0px;
 	overflow: none;
 	top: 200px;
+	right: 0;
 }
 
 #digits li{
@@ -166,6 +166,7 @@ marquee {
   position: fixed;
   top: 0;
   right: 0;
+  font-family: Courier New;
 }
 
 #progressbar {
