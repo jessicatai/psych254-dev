@@ -334,7 +334,7 @@ var experiment = {
         trueFiveCt = 0;
         userFiveCt = 0;
         //console.log("block trials length: ", blockTrials.length, "num trials: ", numTrials);
-        var interval = (blockTrials.length + 1) >= numTrials / 4 ? Math.ceil(1000 / 3.5) : Math.ceil(1000/7);
+        var interval = blockTrials.length >= numTrials / 4 ? Math.ceil(1000 / 3.5) : Math.ceil(1000/7);
         digitInterval = window.setInterval(function(){ experiment.genDigitMarquee(interval)}, interval);
       }
       //});

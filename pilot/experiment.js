@@ -11,10 +11,11 @@ else {
 // ## Load dilemmas as JSON
 var myDilemmas, 
   jsonReceived = false,
-  debug = false,
-  numTrials = debug ? 8 : 40,
-  breakInterval = debug ? 2: 5,
+  debug = true,
+  numTrials = debug ? 2 : 40,
+  breakInterval = debug ? 1: 5,
   myFiveCt = 0,
+  keyPresses = 0,
   digitInterval;
 
 // add onclick toggle event for microphone button
@@ -183,7 +184,7 @@ var experiment = {
     // load block first then non-load
     if((rand == 0 && !nextTrial) || nextTrial == "load"){
       console.log("load block...");
-      experiment.blockOrder = "load, non-load";
+      experiment.blockOrder = "non-load, load"; // load as 2nd trial will set this variable last before pushed to data
       experiment.loadBlock();
       $("#load-next-btn").click(function() {
         this.blur();
@@ -193,7 +194,7 @@ var experiment = {
     // non-load then load
     else {
       console.log("non load block...");
-      experiment.blockOrder = "non-load, load";
+      experiment.blockOrder = "load, non-load";
       experiment.nonLoadBlock();
       $("#nonload-next-btn").click(function() {
         this.blur();
@@ -308,6 +309,8 @@ var experiment = {
       $("#user-five").html("user count:" + userFiveCt);
       $("ul").empty();
 
+      keyPresses = 0;
+
       // Display the dilemma name
       console.log("n", n);
       myDilemmas = dilemmas_json;
@@ -334,7 +337,7 @@ var experiment = {
         trueFiveCt = 0;
         userFiveCt = 0;
         //console.log("block trials length: ", blockTrials.length, "num trials: ", numTrials);
-        var interval = (blockTrials.length + 1) >= numTrials / 4 ? Math.ceil(1000 / 3.5) : Math.ceil(1000/7);
+        var interval = blockTrials.length >= numTrials / 4 ? Math.ceil(1000 / 3.5) : Math.ceil(1000/7);
         digitInterval = window.setInterval(function(){ experiment.genDigitMarquee(interval)}, interval);
       }
       //});
@@ -349,13 +352,14 @@ var experiment = {
         if (keyCode == 70 && blockName == "load") {
           userFiveCt++;
           $("#user-five").html("user count:" + userFiveCt);
+          $(document).one("keydown", keyPressHandler);
         }
         // ignore any key pressed before the full sentence has appeared on the screen
-        if((keyCode != 74 && keyCode != 75)
-          /*|| ( ((new Date()).getTime()) - startTime - Math.floor(startRt) < 0) */) {
+        else if((keyCode != 74 && keyCode != 75)
+          || ( ((new Date()).getTime()) - startTime - Math.floor(startRt) < 0)) {
           // If a key that we don't care about is pressed, re-attach the handler (see the end of this script for more info)
           $(document).one("keydown", keyPressHandler);
-          
+          keyPresses++;
         } 
         else {
           // end  and reset digit stream
@@ -384,13 +388,10 @@ var experiment = {
           // Determine type of dilemma based on index number
           var category = "";
           if (n < 12){
-            category = "high-personal";
-          }
-          else if (n < 21){
-            category = "low-personal";
+            category = "util";
           }
           else {
-            category = "impersonal";
+            category = "non-util"
           }
           // If a valid key is pressed (code 74 is j, 75 is k, 70 is f),
           // record the reaction time (current time minus start time), and digit count accuracy metrics
@@ -403,9 +404,10 @@ var experiment = {
                 rawRT: endTime - startTime,
                 relativeRT: endTime - startTime - Math.floor(startRt),
                 accuracy: ratio,
-                rawAccuracy: userFiveCt / trueFiveCt,
+                rawAccuracy: trueFiveCt == 0 ? 0 : userFiveCt / trueFiveCt,
                 trueFiveTotal: trueFiveCt,
-                userFiveTotal: userFiveCt
+                userFiveTotal: userFiveCt,
+                prematureKeyPresses: keyPresses
               };
           
           experiment.data.push(data);

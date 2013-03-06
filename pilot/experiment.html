@@ -4,7 +4,7 @@ Greene et al (2008) Replication Experiment
 
 <html>
 <head>
-	<title>Greene et al (2008) Replication Experiment</title>
+	<title>Replication (JT)</title>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 	
 	<!-- Include my library, [mmturkey][mmturkey], which manages submitting data to Mechanical Turk. This defines a global object, <code>turk</code>, and attaches five properties to it, <code>hitId</code>, <code>assignmentId</code>, <code>workerId</code>, <code>previewMode</code>, and <code>turkSubmitTo</code>. It also provides a single method, <code>submit(data)</code>, which you use to submit data to Turk. If no submission URL has been provided (because, e.g. you're testing your code outside of the Turk environment), <code>submit</code> displays what would have been submitted (without, obviously, any Turk-specific variables like <code>workerId</code> and <code>assignmentI∏d</code>).  -->
@@ -19,6 +19,9 @@ Greene et al (2008) Replication Experiment
 <div class="slide instructions" id="instructions-general">
 	<img src="images/stanford.png" alt="Stanford University">
 		<p id='logo-text'>Stanford PSYCH 254</p>
+	<p class="block-text">
+		NOTE: Expected completion duration for this HIT is around 1 hour. 
+	</p>
 	<p class="block-text">
 		In this experiment, you will read through 40 moral dilemmas. They will be broken up into 2 sections of 20 dilemmas. In one section, you will simply have to read moving text and respond to the question at the end of the dilemma. In the other section, you will have to perform an additional task. So, please read the directions for each section carefully.
 	</p>
@@ -43,16 +46,12 @@ Greene et al (2008) Replication Experiment
 	<!-- Button to start the experiment. <code>this.blur()</code> removes the focus from the button, if the user pressed the button by using the keyboard, rather than the mouse. -->
 	<button type="button" onclick="this.blur(); experiment.trialInstructions()">Next</button>
 	<!-- Legal blurb that we're required to show. -->
-	<p class="block-text" id="legal">Legal information: By answering the
+	<p class="block-text" id="legal">Legal information: By 	answering the
 		following questions, you are participating in a study being performed by
 		cognitive scientists in the Stanford Department of Psychology. If you have
-		questions about this research, please contact Jessica Tai at <a
-		href="mailto://jmtai@cs.stanford.edu">jmtai [at] cs.stanford.edu</a> or Michael Frank, at mcfrank [at] stanford.edu. You must be  at least 18 years old to
-		participate. Your participation in this research is voluntary. You may
-		decline to answer any or all of the following questions. You may decline
-		further participation, at any time, without adverse consequences. Your
-		anonymity is assured; the researchers who have requested your
-		participation will not receive any personal information about you.</p>`
+		questions about this research, please contact us at <a
+		href="mailto://stanfordpsych254gmail.com">stanfordpsych254 [at] gmail.com</a> Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline
+		further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you.</p>`
 </div>
 <div class="slide instructions" id="instructions-load">
 	<img src="images/stanford.png" alt="Stanford University">
@@ -125,6 +124,8 @@ Greene et al (2008) Replication Experiment
 	<p id="break-progress">You have completed {{}} out of {{}} trials. Please note you have a maximum of 90 minutes to complete all 40 trials.</p>
 	<p>When you are ready, please click the "Continue HIT" button to resume the HIT.</p>
 	<button type="button" id="continue">Continue HIT</button>
+	<h6> REMINDER: Once the full scenario text has been shown, press J to indicate Yes, the scenario is morally acceptable</h6>
+	<h6> Press K to indicate No, the scenario is NOT morally accpetable</h6>
 </div>
 
 <!-- The finish slide. -->
