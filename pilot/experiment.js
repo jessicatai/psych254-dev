@@ -11,7 +11,7 @@ else {
 // ## Load dilemmas as JSON
 var myDilemmas, 
   jsonReceived = false,
-  debug = true,
+  debug = false,
   numTrials = debug ? 2 : 40,
   breakInterval = debug ? 1: 5,
   myFiveCt = 0,
