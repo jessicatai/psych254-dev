@@ -51,7 +51,10 @@ Greene et al (2008) Replication Experiment
 		cognitive scientists in the Stanford Department of Psychology. If you have
 		questions about this research, please contact us at <a
 		href="mailto://stanfordpsych254gmail.com">stanfordpsych254 [at] gmail.com</a> Your participation in this research is voluntary. You may decline to answer any or all of the following questions. You may decline
-		further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you.</p>`
+		further participation, at any time, without adverse consequences. Your anonymity is assured; the researchers who have requested your participation will not receive any personal information about you.
+		Note however that we have recently been made aware that your public Amazon.com profile can be accessed via your worker ID if you do not choose to opt out. If you would like to opt out of this feature, you may follow instructions available <a href="http://www.amazon.com/gp/help/customer/display.html?nodeId=16465241">here</a>.
+	</p>
+
 </div>
 <div class="slide instructions" id="instructions-load">
 	<img src="images/stanford.png" alt="Stanford University">
@@ -81,6 +84,9 @@ Greene et al (2008) Replication Experiment
 	<p class="block-text">
 		Most importantly, if you are still deliberating over your answer after the text of the moral dilemma is done, CONTINUE to press <span class="key">F</span> when you see a <span class="digit">5</span>. Continue doing this until you have answered yes or no.
 	</p>
+	<p class="block-text">
+		NOTE: text will pause its scrolling when the experiment screen is not active. To resume scrolling, you can click on the text.
+	</p>
 	<button type="button" id="load-next-btn">Start</button>
 </div>
 <div class="slide instructions" id="instructions-non-load">
@@ -95,6 +101,9 @@ Greene et al (2008) Replication Experiment
 	</p>
 	<p class="block-text">
 		Once you have pressed a button there is no way to go back to the previous screen. If you press the wrong button or if you press a button too soon, don't worry. Just move on to the next question.
+	</p>
+	<p class="block-text">
+		NOTE: text will pause its scrolling when the experiment screen is not active. To resume scrolling, you can click on the text.
 	</p>
 	<button type="button" id="nonload-next-btn">Start</button>
 </div>
@@ -124,8 +133,9 @@ Greene et al (2008) Replication Experiment
 	<p id="break-progress">You have completed {{}} out of {{}} trials. Please note you have a maximum of 90 minutes to complete all 40 trials.</p>
 	<p>When you are ready, please click the "Continue HIT" button to resume the HIT.</p>
 	<button type="button" id="continue">Continue HIT</button>
-	<h6> REMINDER: Once the full scenario text has been shown, press J to indicate Yes, the scenario is morally acceptable</h6>
-	<h6> Press K to indicate No, the scenario is NOT morally accpetable</h6>
+	<h4> REMINDER: Once the full scenario text has been shown, press J to indicate Yes, the scenario is morally acceptable</h4>
+	<h4> Press K to indicate No, the scenario is NOT morally accpetable</h4>
+	<h4> Also note that the trial will pause when the screen is not active (click on the text to resume). </h4>
 </div>
 
 <!-- The finish slide. -->
@@ -136,6 +146,7 @@ Greene et al (2008) Replication Experiment
 <!-- Include the <a href="experiment.html">JavaScript file for the experiment</a>. As written, that script immediately executes commands, so we include it here at the end of the HTML file to ensure that resources referenced by the script actually exist. For instance, one of the immediately executed commands is <code>showSlide("instructions")</code>. If we loaded experiment.js, say, in the <code>head</code> section, <code>showSlide("instructions")</code> would fail because the <code>instructions</code> slide doesn't exist yet. It is possible to load the script in <code>head</code> but you have to ensure that any immediately executed commands, if they rely on potentially uninitialized HTML elements, are _delayed_ until the page is ready, using either [window.onload][onload] or jQuery's more robust [$(document).ready()][domReady]  -->
 <!-- [onload]: https://developer.mozilla.org/en/DOM/window.onload -->
 <!-- [domReady]: http://api.jquery.com/ready/ -->
+<script src="vendor/pause.min.js"></script>
 <script src="dilemmas.js"></script>
 <script src="vendor/inview.js"></script>
 <script src="experiment.js"></script>

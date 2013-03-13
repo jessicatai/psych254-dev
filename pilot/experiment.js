@@ -49,6 +49,8 @@ function showSlide(id) {
   $(".load-only").hide();
   // Show just the slide we want to show
   $("#"+id).show();
+  $(window).unbind("focus");
+  $(window).unbind("blur");
 }
 
 // Get random integers.
@@ -153,6 +155,7 @@ function clone(obj){
   throw new Error("Unable to copy obj! Its type isn't supported.");
 }
 
+
 // ## Configuration settings
 var myKeyBindings = {"j": "yes", "k": "no", "f": "five"},
     trialOrder = genTrialOrder(numTrials),
@@ -220,11 +223,16 @@ var experiment = {
   },
   textMarquee: function(delta, numChars){
     var speed = 1000 * numChars / 6.5;
-    console.log("IN TEXT MARQUEE");
+    var time;
+    var start = (new Date()).getTime();
     $(".marquee").animate({
       right: "+=" + delta + "px"
-    }, speed, "linear");
-    return;
+    }, speed, "linear", function(){
+      time = (new Date()).getTime() - start; 
+      console.log("IN TEXT MARQUEE", time);
+    });
+    
+    return time;
   },
   // Show the instructions for the load block trials
   loadBlock: function(){
@@ -308,6 +316,51 @@ var experiment = {
       $("#true-five").html(trueFiveCt);
       $("#user-five").html("user count:" + userFiveCt);
       $("ul").empty();
+      
+
+      showSlide("trial");
+
+      // Get the current time so we can compute reaction time later.
+      var startTime = (new Date()).getTime();
+
+       // Display digit marquee only during load bloack
+      
+
+      $(window).unbind("focus");
+      $(window).unbind("blur");
+      var counter_ms = 0;
+      var pauseStart;
+      trueFiveCt = 0;
+      userFiveCt = 0;
+      var interval = blockTrials.length >= numTrials / 4 ? Math.ceil(1000 / 3.5) : Math.ceil(1000/7);
+
+      $(window).focus(function() {
+          //$(".marquee").resume();
+          experiment.textMarquee(delta, numChars);
+          $("#digits").resume();
+
+          if (blockName == "load") {       
+            $(".load-only").show();
+
+            // Set up digit marquee
+            digitInterval = window.setInterval(function(){ experiment.genDigitMarquee(interval)}, interval);
+          }
+
+          var idleTime = (new Date()).getTime() - pauseStart;
+          counter_ms += idleTime;
+          console.log("idle time: ", idleTime);
+          
+      })
+          .blur(function() {
+            pauseStart = (new Date()).getTime();
+            $(".marquee").stop();//pause();
+            $("#digits").pause();
+            console.log("should be pausing...");
+            clearInterval(digitInterval);
+            // myInterval  = setInterval(function () {
+            //   ++counter_ms;
+            // }, 1);
+      });
 
       keyPresses = 0;
 
@@ -319,31 +372,26 @@ var experiment = {
       $("#dilemma-text").html(myDilemmas[n]["Text"]);
 
 
-      showSlide("trial");
 
       var textWidth =  $(".marquee").outerWidth();
       $(".marquee").css("right", "-" + textWidth + "px");
       var numChars = $(".marquee").html().length;
       var delta = textWidth + width; 
 
-      var startRt = (textWidth* numChars * 1000) / (6.5 * delta);
-      experiment.textMarquee(delta, numChars);
+      var startRt = (textWidth * numChars * 1000) / (6.5 * delta);
+      var startRtNew = experiment.textMarquee(delta, numChars);
+      console.log("startRTs", startRt, startRtNew);
 
-      // Display digit marquee only during load bloack
+     
       if (blockName == "load") {       
         $(".load-only").show();
 
         // Set up digit marquee
-        trueFiveCt = 0;
-        userFiveCt = 0;
-        //console.log("block trials length: ", blockTrials.length, "num trials: ", numTrials);
         var interval = blockTrials.length >= numTrials / 4 ? Math.ceil(1000 / 3.5) : Math.ceil(1000/7);
         digitInterval = window.setInterval(function(){ experiment.genDigitMarquee(interval)}, interval);
       }
-      //});
 
-      // Get the current time so we can compute reaction time later.
-      var startTime = (new Date()).getTime();
+      
       
       // Set up a function to react to keyboard input. Functions that are used to react to user input are called *event handlers*. In addition to writing these event handlers, you have to *bind* them to particular events (i.e., tell the browser that you actually want the handler to run when the user performs an action). Note that the handler always takes an <code>event</code> argument, which is an object that provides data about the user input (e.g., where they clicked, which button they pressed).
       var keyPressHandler = function(event) {
@@ -393,6 +441,7 @@ var experiment = {
           else {
             category = "non-util"
           }
+          console.log("counter ms", counter_ms);
           // If a valid key is pressed (code 74 is j, 75 is k, 70 is f),
           // record the reaction time (current time minus start time), and digit count accuracy metrics
           var endTime = (new Date()).getTime(),
@@ -403,6 +452,7 @@ var experiment = {
                 response: experiment.keyBindings[key],
                 rawRT: endTime - startTime,
                 relativeRT: endTime - startTime - Math.floor(startRt),
+                activeRT: endTime - startTime - counter_ms - Math.floor(startRt),
                 accuracy: ratio,
                 rawAccuracy: trueFiveCt == 0 ? 0 : userFiveCt / trueFiveCt,
                 trueFiveTotal: trueFiveCt,
